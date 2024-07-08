@@ -1,0 +1,23 @@
+name: taxi
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - ensure
+  - ipykernel
+  - pip
+  - pip:
+    - Pandas
+    - pip install PyYAML
+    - python-box
+    - Numpy
+    - scikit-learn
+    - zip-files
+    - matplotlib
+    - seaborn
+    - plotly
+    - click
+    - tqdm
+    - loguru
+    - nbformat

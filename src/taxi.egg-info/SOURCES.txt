@@ -1,0 +1,17 @@
+README.md
+setup.py
+src/taxi/__init__.py
+src/taxi/main.py
+src/taxi.egg-info/PKG-INFO
+src/taxi.egg-info/SOURCES.txt
+src/taxi.egg-info/dependency_links.txt
+src/taxi.egg-info/entry_points.txt
+src/taxi.egg-info/top_level.txt
+src/taxi/components/Data.py
+src/taxi/components/Model.py
+src/taxi/components/__init__.py
+src/taxi/configs/__init__.py
+src/taxi/configs/config.py
+src/taxi/utils/__init__.py
+src/taxi/utils/helpers.py
+src/taxi/utils/utils.py

@@ -1,0 +1,86 @@
+PERCENTILES :
+  - 5
+  - 50
+  - 95
+
+
+DATASET:
+  COLUMNS_TO_DROP: 
+  - tpep_pickup_datetime 
+  - tpep_dropoff_datetime 
+  - RatecodeID 
+  - store_and_fwd_flag
+  - PULocationID 
+  - DOLocationID
+  - extra
+  - mta_tax
+  - tolls_amount 
+  - improvement_surcharge 
+  - congestion_surcharge
+  COLUMNS_TO_USE:
+    - VendorID
+    - passenger_count
+    - payment_type
+    - trip_distance
+    - total_amount
+  FEATURES:
+    - VendorID
+    - passenger_count
+    - payment_type
+    - trip_distance
+  CATEGORICAL_FEATURES:
+    - VendorID
+    - passenger_count
+    - payment_type
+  NUMERICAL_FEATURES:
+    - trip_distance
+  TARGET: total_amount
+
+  TRAIN_SIZE: 0.8
+  VALID_SIZE: 0.1
+  TEST_SIZE:  0.15
+  RANDOM_STATE: 20
+
+Models:
+  LinearRegressionModel:
+    HYPERPARAMETERS:
+      fit_intercept : True
+      copy_X : True
+      n_jobs: None # int
+
+
+  RandomForestModel:
+    HYPERPARAMETERS:
+      n_estimators: 100
+      criterion: 'squared_error'
+      min_samples_split: 2
+      min_samples_leaf: 1
+      min_weight_fraction_leaf: 0.0
+      max_features: 1.0
+      min_impurity_decrease: 0.0
+      bootstrap: True
+      oob_score: False
+      random_state: 42
+      verbose: 0
+      ccp_alpha: 0.0
+
+
+  XGBoostModel:
+    HYPERPARAMETERS:
+      loss: 'squared_error'
+      learning_rate: 0.1
+      n_estimators: 100
+      subsample: 1.0
+      criterion: 'friedman_mse'
+      min_samples_split: 2
+      min_samples_leaf: 1
+      min_weight_fraction_leaf: 0.0
+      max_depth: 3
+      min_impurity_decrease: 0.0
+      random_state: 42
+      alpha: 0.9
+      verbose: 0
+      warm_start: False
+      validation_fraction: 0.1
+      tol: 0.0001
+      ccp_alpha: 0.0
