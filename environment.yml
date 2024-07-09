@@ -9,7 +9,7 @@ dependencies:
   - pip
   - pip:
     - Pandas
-    - pip install PyYAML
+    - PyYAML
     - python-box
     - Numpy
     - scikit-learn
@@ -21,3 +21,5 @@ dependencies:
     - tqdm
     - loguru
     - nbformat
+    - mlflow
+    - requests

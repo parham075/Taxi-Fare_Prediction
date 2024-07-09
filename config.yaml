@@ -9,7 +9,4 @@ QA:
 
 Model:
   MODEL_PATH: artifacts/models
-  RF_MODEL : RandomForest
-  LR_MODEL: LR
-  XGBoost_MODEL: XGBoost
   MODEL_FILE: best_model.pickl 

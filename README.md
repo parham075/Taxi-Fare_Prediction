@@ -1,27 +1,51 @@
 # Newyork Taxi Trip 
-Text Summarization is a crucial and top Natural Language Processing task that involves generating concise and coherent summaries of longer pieces of text. It enables quick information retrieval and comprehension, making it invaluable for dealing with large volumes of textual data.
+
+> Please check [artifacts](./artifacts/) for the inputs and outputs.
+
 
 ## Objective
-This project aims to develop an abstractive or extractive text summarization model capable of creating informative and concise summaries from lengthy text documents. Before that, we saw we could use langchain to provide text summarization using OpenAI API though [NTA-LLM](https://github.com/parham075/NTA-LLM). now I am going to train a transformer model using transfer learning and try to fine-tune it to tackle the problem.
+This project aims to tack three tasks:
 
-## Usecase:
-The output model from this project can be useful for academic researcher, students, and anybody who doesn't have much time to read large amounts of text and looking for a solution to summerize their articles, course slides, etc. 
+`Question A`:
+Calculate on the entire dataset the 5th, 50th and 95th percentiles (q05, q50, q95) on the dataset
+values: 'fare_amount ' , ' tip_amount ' and ' total_amount ' ; divided according to the ' VendorID ',
+' passenger_count ' and ' payment_type ' fields
+The calculation output must be a dataFrame to be exported in CSV format organized with:
+Columns: field name (on which the percentile is calculated) + “_p_” + percentile threshold
+Rows (index): grouping field name + ” _” + value of the group on which the percentile calculation is performed
+`Question A.1 (optional)`:
+Calculate the percentiles as reported for question A also for the dataset divided by trip_distance if
+>2.8 or <=2.8 and add the calculated values to the dataFrame with the logic reported in question A
 
-## Dataset Overview and Data Preprocessing
 
-This project requires a dataset containing articles or documents with human-generated summaries. Data preprocessing involves tokenizing the text, handling punctuation, and creating input-target pairs for training.
-For this project I used a well-known dataset from `Hugging Face`:
-- [Samsum](https://huggingface.co/datasets/samsum?row=0)
+`Question B`:
+Generate an ML model for estimating the " total_amount " based on the variables (as input to the
+model): ' VendorID ','passenger_count ' ,'payment_type ' ,' trip_distance '
+It is possible to independently define the methodology and the selection and split process of the
+reference dataset for training, testing and verification of the model (kf, random, train -test- valid )
+(optional) For model optimization it is recommended to calculate the RMSE on the selected partial
+test dataset
+Export the generated model to file (ie via pickle, json …)
+*The quality assessment of the generated model will be verified through the calculation of the RMSE on a test dataset equivalent to the one used by the user in terms of format and compatible in terms of number (but not provided)
+**The user is given the right to use a different ML model from those present in the sklearn libraries, but the generated model must be exportable, and the user must indicate the name and version of the library used (for calculation of the RMSE on the new test dataset)
 
-## Model(s)
-| Model| Weights|
-| --- | --- |
-|pre-trained model | [pegasus-cnn_dailymail](https://huggingface.co/google/pegasus-cnn_dailymail)|
 
-## Queries for Analysis
 
-Generate summaries for long articles or documents.
-Evaluate the quality of generated summaries using ROUGE and BLEU metrics.
-Key Insights and Findings
+## How to execute?
+First of all you need to create an environment using conda as below:
 
-The text summarization model will successfully generate concise and coherent summaries, improving the efficiency of information retrieval and enhancing the user experience when dealing with extensive textual content.
+```
+conda env create -f environment.yml
+conda activate taxi
+python -m ipykernel install --user --name "taxi"
+```
+
+
+There are two approaches to execute tasks:
+- Using Notebooks: there are some notebooks in [notebook](./notebook/) folder which has two sub-folder to solve each question.
+- Modular programming: to execute using this approach you need to execute commands below in your terminal.
+
+```
+pip install -e .
+taxi
+```

@@ -18,7 +18,7 @@ from taxi.configs.config import *
 from taxi.utils.helpers import *
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
 
 class Data:
@@ -91,6 +91,7 @@ class Data:
         )
         self.df = self.df[PARAMS.DATASET.COLUMNS_TO_USE]
         return percentile_results
+
     @staticmethod
     def handle_outliers_tukey(df, columns):
         outlier_indices = []
@@ -101,14 +102,19 @@ class Data:
             # Calculate bounds for outliers
             lower_bound = q1 - 1.5 * iqr
             upper_bound = q3 + 1.5 * iqr
-            
+
             # Identify outliers and replace them
             outlier_mask = (df[col] < lower_bound) | (df[col] > upper_bound)
             outlier_indices.extend(df.index[outlier_mask])
-            df.loc[outlier_mask, col] = np.clip(df.loc[outlier_mask, col], lower_bound, upper_bound)
+            df.loc[outlier_mask, col] = np.clip(
+                df.loc[outlier_mask, col], lower_bound, upper_bound
+            )
             return df
+
     def eda(self):
-        self.df = self.handle_outliers_tukey(self.df,columns=['trip_distance','total_amount'])
+        self.df = self.handle_outliers_tukey(
+            self.df, columns=["trip_distance", "total_amount"]
+        )
         # # Calculate correlation coefficient
         # correlation_coefficient = self.df['trip_distance'].corr(self.df['total_amount'])
 
@@ -132,49 +138,75 @@ class Data:
         # Adjust layout
         # plt.tight_layout()
         # # Show plot
-        # plt.show()     
+        # plt.show()
+
     def data_split(self):
         features = self.df[PARAMS.DATASET.FEATURES]
         target = self.df[PARAMS.DATASET.TARGET]
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(features, target, test_size=PARAMS.DATASET.TEST_SIZE, random_state=PARAMS.DATASET.RANDOM_STATE)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            features,
+            target,
+            test_size=PARAMS.DATASET.TEST_SIZE,
+            random_state=PARAMS.DATASET.RANDOM_STATE,
+        )
+
     @staticmethod
     def preprocessing(features, labels):
-    # Handling Numericals 
-    # trip_distance Bucketization AND encoding
-        for key in PARAMS.DATASET.NUMERICAL_FEATURES: 
+        # Handling Numericals
+        # trip_distance Bucketization AND encoding
+        for key in PARAMS.DATASET.NUMERICAL_FEATURES:
             # Create equal-width buckets for the numerical feature
-            features['distance_bucket_equal_width'] = pd.qcut(features[key], q=5)
-            
+            features["distance_bucket_equal_width"] = pd.qcut(
+                features[key], q=10, duplicates="drop"
+            )
+
             # One-hot encode the bucketized feature
-            encoder = OneHotEncoder(sparse_output=False, drop='first')
-            distance_buckets_encoded = encoder.fit_transform(features[['distance_bucket_equal_width']])
-            
+            encoder = OneHotEncoder(sparse_output=False, drop="first")
+            distance_buckets_encoded = encoder.fit_transform(
+                features[["distance_bucket_equal_width"]]
+            )
+
             # Create a DataFrame from the encoded features
-            distance_buckets_encoded_df = pd.DataFrame(distance_buckets_encoded, columns=encoder.get_feature_names_out(['distance_bucket_equal_width']))
-            
+            distance_buckets_encoded_df = pd.DataFrame(
+                distance_buckets_encoded,
+                columns=encoder.get_feature_names_out(["distance_bucket_equal_width"]),
+            )
+
             # Rename the bucket columns
-            new_column_names = {col: f'distance_bucket_{i+1}' for i, col in enumerate(distance_buckets_encoded_df.columns)}
+            new_column_names = {
+                col: f"distance_bucket_{i+1}"
+                for i, col in enumerate(distance_buckets_encoded_df.columns)
+            }
             distance_buckets_encoded_df.rename(columns=new_column_names, inplace=True)
-            
+
             # Concatenate the encoded features with the original DataFrame (excluding the original bucket column)
-            df_encoded = pd.concat([features.drop(columns=['distance_bucket_equal_width', key]).reset_index(drop=True), 
-                                distance_buckets_encoded_df.reset_index(drop=True)], axis=1)
-        
+            df_encoded = pd.concat(
+                [
+                    features.drop(
+                        columns=["distance_bucket_equal_width", key]
+                    ).reset_index(drop=True),
+                    distance_buckets_encoded_df.reset_index(drop=True),
+                ],
+                axis=1,
+            )
+
         # Rescale the label
         # Initialize the RobustScaler
-        scaler = RobustScaler()
+        scaler = MinMaxScaler(feature_range=(-1, 1))
         labels = labels.reshape(-1, 1)
-        
+
         # Fit and transform the labels
         scaled_labels = scaler.fit_transform(labels)
-        
+
         # Convert scaled labels back to a Series
         labels = pd.Series(scaled_labels.flatten())
-        
+
         return df_encoded, labels
 
     @staticmethod
     def save_csv(df):
-        if not os.path.exists(f'{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}'): 
-            os.makedirs(f'{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}')
-            df.to_csv(f'{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}/{CONFIG.QA.PERCENTILE_DATAFRAME_FILE}')
+        if not os.path.exists(f"{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}"):
+            os.makedirs(f"{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}")
+            df.to_csv(
+                f"{CONFIG.QA.PERCENTILE_DATAFRAME_PATH}/{CONFIG.QA.PERCENTILE_DATAFRAME_FILE}"
+            )
